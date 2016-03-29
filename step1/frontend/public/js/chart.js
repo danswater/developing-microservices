@@ -1,7 +1,7 @@
 'use strict';
 
 var graph;
-
+var websocket = require( 'websocket-stream' );
 
 
 var initChart = function() {
@@ -52,6 +52,11 @@ var initChart = function() {
     graph.series[0].data.push({x: start + idx, y: 0});
   }
   graph.render();
+
+  var stream = websocket(document.URL.replace('http', 'ws'));
+  stream.on('data', function(data) {
+    updateChart(graph, JSON.parse(data));
+  });
 };
 
 
@@ -69,21 +74,7 @@ var updateChart = function(graph, data) {
 };
 
 
-
-var pumpData = function() {
-  var i = 0;
-  var offset = 200;
-  setInterval(function() {
-    var randInt = Math.floor(Math.random()*100);
-    var temp = Math.round((Math.sin(i++ / 40) + 4) * (randInt + offset));
-    updateChart(graph, [{sensorId: '1', time: (new Date()).getTime(), temperature: temp}]);
-  }, 1000);
-};
-
-
-
 $(document).ready(function() {
   initChart();
-  pumpData();
 });
 
